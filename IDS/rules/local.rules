@@ -1,0 +1,17 @@
+# Web Attacks
+alert http $EXTERNAL_NET any -> $HTTP_SERVERS any (msg:"IDS: SQL Injection Attempt (UNION SELECT)"; flow:established,to_server; content:"union"; nocase; content:"select"; nocase; sid:1000001; rev:1;)
+alert http $EXTERNAL_NET any -> $HTTP_SERVERS any (msg:"IDS: SQL Injection Attempt (OR 1=1)"; flow:established,to_server; content:"or"; nocase; content:"1=1"; sid:1000002; rev:1;)
+alert http $EXTERNAL_NET any -> $HTTP_SERVERS any (msg:"IDS: XSS Attempt Detected"; flow:established,to_server; content:"<script>"; nocase; sid:1000003; rev:1;)
+
+# Scanning
+alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"IDS: Nmap NULL Scan Detected"; flags:0; ack:0; sid:1000004; rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"IDS: Nmap XMAS Scan Detected"; flags:FPU; sid:1000005; rev:1;)
+alert icmp $EXTERNAL_NET any -> $HOME_NET any (msg:"IDS: ICMP Ping Sweep Detected"; itype:8; threshold:type threshold, track by_src, count 10, seconds 10; sid:1000006; rev:1;)
+
+# Access Attempts
+alert tcp $EXTERNAL_NET any -> $HOME_NET 22 (msg:"IDS: Potential SSH Brute Force"; flow:to_server; flags:S; threshold:type threshold, track by_src, count 5, seconds 60; sid:1000007; rev:1;)
+alert tcp $HOME_NET 21 -> $EXTERNAL_NET any (msg:"IDS: FTP Brute Force Attempt (Failed Login)"; flow:from_server,established; content:"530 Login incorrect"; sid:1000008; rev:1;)
+
+# Post-Exploitation
+alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"IDS: Sensitive File Access (/etc/passwd)"; flow:established,to_server; content:"/etc/passwd"; sid:1000009; rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"IDS: Post-Exploitation Command (whoami)"; flow:established,to_server; content:"whoami"; nocase; sid:100010; rev:1;)
